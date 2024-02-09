@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="main.qml">qml/main.qml</file>
+        <file alias="StartScreen.qml">qml/screens/StartScreen.qml</file>
+    </qresource>
+</RCC>
