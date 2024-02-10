@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file alias="main.qml">qml/main.qml</file>
         <file alias="StartScreen.qml">qml/screens/StartScreen.qml</file>
+        <file alias="RecordDelegate.qml">qml/delegates/RecordDelegate.qml</file>
+        <file alias="Constants.qml">qml/Constants.qml</file>
     </qresource>
 </RCC>

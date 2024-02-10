@@ -12,9 +12,9 @@ Window
     width: 800
     height: 600
 
-    title: qsTr("TetrisGame")
+    title: "ScreenSaver"
 
-    color: "black"
+    color: "white"
 
     T.StackView
     {
@@ -31,7 +31,9 @@ Window
             color: "#33000000"
         }
 
-        initialItem: StartScreen {}
+        initialItem: StartScreen {
+          anchors.fill: parent
+        }
 
         popEnter: Transition {}
         popExit: Transition {}
