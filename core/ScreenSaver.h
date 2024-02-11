@@ -4,27 +4,27 @@
 
 #pragma once
 
+#include "RecordModel.h"
+
 #include <QObject>
+#include <QTimer>
 
-class ScreenSaver
+class ScreenSaver : public QObject
 {
-
+  Q_OBJECT
 public:
-  ScreenSaver();
+  explicit ScreenSaver(const RecordModel& model);
 
+public slots:
   void start();
-  void pause();
+  void stop();
   void takeNewRecord();
 
-
-
-private:
-
-  ScreenSaver(const ScreenSaver& other) = delete;
-  ScreenSaver& operator=(const ScreenSaver& other) = delete;
+signals:
+  void onNewRecord(const Record& record);
 
 private:
-
-
+  QTimer timer;
+  QPixmap previousShot;
 
 };

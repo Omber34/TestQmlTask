@@ -4,33 +4,18 @@
 
 #include "RecordModel.h"
 
-#include <QScreen>
-#include <QGuiApplication>
-#include <QCryptographicHash>
-#include <QBuffer>
 #include <QPainter>
 
-namespace
-{
-  Record createNewRecord()
-  {
-    auto* screen = QGuiApplication::primaryScreen();
+#include <stdexcept>
 
-    auto screenshot = screen->grabWindow(0);
-
-    QByteArray pixmapToHash;
-    QBuffer buffer(&pixmapToHash);
-
-    buffer.open(QIODevice::WriteOnly);
-    screenshot.save(&buffer, "PNG");
-
-    QString hash = QString(QCryptographicHash::hash(pixmapToHash, QCryptographicHash::Md5).toHex());
-    return Record{screenshot, 0.0, hash};
-  }
-}
 
 QVariant RecordModel::data(const QModelIndex &index, int role) const
 {
+  if (!index.isValid())
+    return {};
+
+  const auto& record = records[records.size() - index.row() - 1];
+
   switch (role)
   {
     case HashRole:
@@ -48,7 +33,7 @@ QVariant RecordModel::data(const QModelIndex &index, int role) const
 
 int RecordModel::rowCount(const QModelIndex &parent) const
 {
-  return 15;
+  return records.size();
 }
 
 QHash<int, QByteArray> RecordModel::roleNames() const
@@ -64,22 +49,25 @@ QHash<int, QByteArray> RecordModel::roleNames() const
 
 QPixmap RecordModel::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-  auto& pixmap = record.image;
+  auto iter = std::find_if(records.begin(), records.end(), [&id] (const Record& record) { return record.hash == id; });
+  if (iter == records.end())
+    throw std::logic_error("cant find a requested pixmap.");
+
+  auto& pixmap = iter->image;
   int width = 320;
   int height = 180;
 
   if (size)
     *size = QSize(width, height);
+
   QPainter painter(&pixmap);
-
-
   if (requestedSize.isValid())
   {
     painter.scale(requestedSize.width() / width, requestedSize.height() / height);
   }
   else
   {
-    const auto rect = record.image.rect();
+    const auto rect = pixmap.rect();
     painter.scale(rect.width() / width, rect.height() / height);
   }
 
@@ -89,6 +77,13 @@ QPixmap RecordModel::requestPixmap(const QString &id, QSize *size, const QSize &
 RecordModel::RecordModel(QObject *parent)
   : QAbstractListModel(parent)
   , QQuickImageProvider(QQuickImageProvider::Pixmap)
-  , record(createNewRecord())
-{}
+{
+}
+
+void RecordModel::addNewRecord(const Record& record)
+{
+  beginInsertRows(QModelIndex(), 0, 0);
+  records.push_back(record);
+  endInsertRows();
+}
 

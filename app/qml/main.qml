@@ -9,8 +9,8 @@ Window
     id: window
 
     visible: true
-    width: 800
-    height: 600
+    width: Constants.previewImageWidth * 3
+    height: Constants.gridCellHeight * 3
 
     title: "ScreenSaver"
 

@@ -1,13 +1,15 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include "RecordModel.h"
+#include "ScreenSaver.h"
 
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     auto* model= new RecordModel;
-
+    ScreenSaver saver(*model);
+    saver.start();
 
     QQmlApplicationEngine engine;
     engine.addImportPath ("qrc:/");
