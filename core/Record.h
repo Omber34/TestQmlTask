@@ -13,3 +13,5 @@ struct Record
   float similarToPrev{};
   QString hash;
 };
+
+Q_DECLARE_METATYPE(Record)

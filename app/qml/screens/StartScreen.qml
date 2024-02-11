@@ -1,26 +1,19 @@
 import QtQuick 2.12
+import QtQuick.Layouts 1.15
 import models 1.0
-
 
 Item
 {
-	GridView
-	{
-    cellWidth: Constants.previewImageWidth
-    cellHeight: Constants.gridCellHeight
+		SaverControlPanel
+		{
+		  id: controlPanel
+		}
 
-		id: grid
-    anchors.fill: parent
-
-    model: RecordModel
-    delegate: RecordDelegate
-    {
-      width: grid.cellWidth
-      height: grid.cellHeight
-
-      imageSource: image
-      hashText: hash
-      similarToPrevText: similarToPrev
-    }
-	}
+		RecordView
+		{
+			anchors.top: controlPanel.bottom
+			anchors.right: parent.right
+			anchors.left: parent.left
+			anchors.bottom: parent.bottom
+		}
 }

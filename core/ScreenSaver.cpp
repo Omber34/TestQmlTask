@@ -36,32 +36,32 @@ namespace
   }
 
   float compareImages(const QPixmap& left, const QPixmap& right)
-  {
-    if (left.isNull() || right.isNull())
-      return 0.0f;
-
-    auto leftHash = pixmapToByteArray(left);
-    auto rightHash = pixmapToByteArray(right);
-
-    QByteArray diff;
-    diff.reserve(std::min(leftHash.size(), rightHash.size()));
-
-    size_t nonZeroCount = 0;
-    for (int i = 0; i < diff.capacity(); ++i)
-    {
-      const auto value = static_cast<char>(std::abs(static_cast<int>(leftHash[i] - rightHash[i])));
-      diff.push_back(value);
-      if (value != 0) ++nonZeroCount;
-    }
-
-    return static_cast<float>(nonZeroCount) / static_cast<float>(diff.size()) * 100.0f;
+  {return 0;
+//    if (left.isNull() || right.isNull())
+//      return 0.0f;
+//
+//    auto leftHash = pixmapToByteArray(left);
+//    auto rightHash = pixmapToByteArray(right);
+//
+//    QByteArray diff;
+//    diff.reserve(std::min(leftHash.size(), rightHash.size()));
+//
+//    size_t nonZeroCount = 0;
+//    for (int i = 0; i < diff.capacity(); ++i)
+//    {
+//      const auto value = static_cast<char>(std::abs(static_cast<int>(leftHash[i] - rightHash[i])));
+//      diff.push_back(value);
+//      if (value != 0) ++nonZeroCount;
+//    }
+//
+//    return static_cast<float>(nonZeroCount) / static_cast<float>(diff.size()) * 100.0f;
   }
 }
 
 ScreenSaver::ScreenSaver(const RecordModel &model)
 {
   connect(&timer, &QTimer::timeout, this, &ScreenSaver::takeNewRecord);
-  connect(this, &ScreenSaver::onNewRecord, &model, &RecordModel::addNewRecord);
+  connect(this, &ScreenSaver::onNewRecord, &model, &RecordModel::addNewRecord, Qt::QueuedConnection);
 }
 
 void ScreenSaver::start()

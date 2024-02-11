@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
     qmlRegisterSingletonType(QUrl("qrc:/Constants.qml"),
       "Constants", 1, 0, "Constants");
     qmlRegisterSingletonInstance("models", 1, 0, "RecordModel", model);
+    qmlRegisterSingletonInstance("models", 1, 0, "ScreenSaver", &saver);
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
