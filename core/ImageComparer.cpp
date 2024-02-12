@@ -9,7 +9,6 @@ namespace
 {
   float compareImages(const QPixmap& left, const QPixmap& right)
   {
-    const auto start = std::chrono::system_clock::now();
     if (left.isNull() || right.isNull())
       return 0.0f;
 
@@ -22,9 +21,6 @@ namespace
         if (rightImage.pixel(x, y) != leftImage.pixel(x, y))
           ++differentPixels;
 
-    const auto end = std::chrono::system_clock::now();
-    const std::chrono::milliseconds dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    qDebug() << "compareImages spent: " << dur.count() << "ms.";
 
     const auto pixelCount = leftImage.width() * leftImage.width();
     return 100.0f - (static_cast<float>(differentPixels) / static_cast<float>(pixelCount) * 100.0f);

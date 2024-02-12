@@ -9,7 +9,7 @@
 
 struct Record
 {
-  float similarToPrev{};
+  float similarity{};
   QString hash;
 };
 

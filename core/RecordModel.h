@@ -7,6 +7,7 @@
 #include <QAbstractListModel>
 #include "Record.h"
 #include "ImageComparer.h"
+#include "DatabaseManager.h"
 
 const auto ScreenshotPrefix = "shots";
 
@@ -27,6 +28,8 @@ public:
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
   QHash<int, QByteArray> roleNames() const override;
 
+  ~RecordModel() override;
+
 public slots:
 
   void addNewRecord(const Record& record);
@@ -35,4 +38,5 @@ public slots:
 private:
   QList<Record> records;
   ImageComparer comparer;
+  DatabaseManager databaseManager;
 };

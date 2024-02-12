@@ -3,6 +3,7 @@
 //
 
 #include "RecordModel.h"
+#include "DatabaseManager.h"
 
 #include <algorithm>
 
@@ -18,7 +19,7 @@ QVariant RecordModel::data(const QModelIndex &index, int role) const
     case HashRole:
       return QVariant::fromValue(record.hash);
     case SimilarToPrevRole:
-      return QVariant::fromValue(QString::number(record.similarToPrev).left(6));
+      return QVariant::fromValue(QString::number(record.similarity).left(6));
     case ImageRole:{
       const QString imagePathPattern = "image://%1/%2";
       return QVariant::fromValue(imagePathPattern.arg(ScreenshotPrefix).arg(record.hash));
@@ -46,8 +47,10 @@ QHash<int, QByteArray> RecordModel::roleNames() const
 
 RecordModel::RecordModel(QObject *parent)
   : QAbstractListModel(parent)
+  , databaseManager(this)
 {
   connect(&comparer, &ImageComparer::resultReady, this, &RecordModel::processCompareResult, Qt::QueuedConnection);
+  records = databaseManager.loadHistory();
 }
 
 void RecordModel::addNewRecord(const Record& record)
@@ -68,8 +71,13 @@ void RecordModel::processCompareResult(const QString& id, float similarity)
   if (iter == records.end())
     return;
 
-  (*iter).similarToPrev = similarity;
+  (*iter).similarity = similarity;
 
   emit dataChanged(createIndex(0, 0), createIndex(records.size() - 1, 0), {SimilarToPrevRole} );
+}
+
+RecordModel::~RecordModel()
+{
+  databaseManager.storeHistory(records);
 }
 

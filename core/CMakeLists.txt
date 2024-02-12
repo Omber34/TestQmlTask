@@ -1,5 +1,7 @@
 file(GLOB CORE_SRC
         *.cpp)
 
-add_library(core ${CORE_SRC} Record.h RecordModel.cpp RecordModel.h ImageComparer.cpp ImageComparer.h ImageStorage.cpp ImageStorage.h)
+set(REQUIRED_LIBS_QUALIFIED Qt5::Core Qt5::Qml Qt5::Quick Qt5::QuickControls2 Qt5::Sql)
+
+add_library(core ${CORE_SRC})
 target_link_libraries(core ${REQUIRED_LIBS_QUALIFIED})
