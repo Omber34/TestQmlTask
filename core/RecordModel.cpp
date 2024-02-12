@@ -4,10 +4,7 @@
 
 #include "RecordModel.h"
 
-#include <QPainter>
-
-#include <stdexcept>
-
+#include <algorithm>
 
 QVariant RecordModel::data(const QModelIndex &index, int role) const
 {
@@ -21,7 +18,7 @@ QVariant RecordModel::data(const QModelIndex &index, int role) const
     case HashRole:
       return QVariant::fromValue(record.hash);
     case SimilarToPrevRole:
-      return QVariant::fromValue(record.similarToPrev);
+      return QVariant::fromValue(QString::number(record.similarToPrev).left(6));
     case ImageRole:{
       const QString imagePathPattern = "image://%1/%2";
       return QVariant::fromValue(imagePathPattern.arg(ScreenshotPrefix).arg(record.hash));
@@ -38,52 +35,41 @@ int RecordModel::rowCount(const QModelIndex &parent) const
 
 QHash<int, QByteArray> RecordModel::roleNames() const
 {
-  QHash<int, QByteArray> result{
+  QHash<int, QByteArray> result {
     {HashRole,  "hash"},
     {ImageRole, "image"},
     {SimilarToPrevRole, "similarToPrev"}
-  } ;
+  };
 
   return result;
 }
 
-QPixmap RecordModel::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
-{
-  auto iter = std::find_if(records.begin(), records.end(), [&id] (const Record& record) { return record.hash == id; });
-  if (iter == records.end())
-    throw std::logic_error("cant find a requested pixmap.");
-
-  auto& pixmap = iter->image;
-  int width = 320;
-  int height = 180;
-
-  if (size)
-    *size = QSize(width, height);
-
-  QPainter painter(&pixmap);
-  if (requestedSize.isValid())
-  {
-    painter.scale(requestedSize.width() / width, requestedSize.height() / height);
-  }
-  else
-  {
-    const auto rect = pixmap.rect();
-    painter.scale(rect.width() / width, rect.height() / height);
-  }
-
-  return pixmap;
-}
-
 RecordModel::RecordModel(QObject *parent)
   : QAbstractListModel(parent)
-  , QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
+  connect(&comparer, &ImageComparer::resultReady, this, &RecordModel::processCompareResult, Qt::QueuedConnection);
 }
 
 void RecordModel::addNewRecord(const Record& record)
 {
+  if (!records.empty())
+  {
+    emit comparer.operate(records.back().hash, record.hash);
+  }
+
   beginInsertRows(QModelIndex(), 0, 0);
   records.push_back(record);
   endInsertRows();
+}
+
+void RecordModel::processCompareResult(const QString& id, float similarity)
+{
+  const auto iter = std::find_if(records.begin(), records.end(), [&id] (const Record& record) { return record.hash == id; });
+  if (iter == records.end())
+    return;
+
+  (*iter).similarToPrev = similarity;
+
+  emit dataChanged(createIndex(0, 0), createIndex(records.size() - 1, 0), {SimilarToPrevRole} );
 }
 

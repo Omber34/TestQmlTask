@@ -5,15 +5,14 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <QQuickImageProvider>
 #include "Record.h"
+#include "ImageComparer.h"
 
 const auto ScreenshotPrefix = "shots";
 
-class RecordModel : public QAbstractListModel, public QQuickImageProvider
+class RecordModel : public QAbstractListModel
 {
   Q_OBJECT
-
   enum
   {
     HashRole = Qt::UserRole + 1,
@@ -28,12 +27,12 @@ public:
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
   QHash<int, QByteArray> roleNames() const override;
 
-  QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
-
 public slots:
 
   void addNewRecord(const Record& record);
+  void processCompareResult(const QString& id, float similarity);
 
 private:
   QList<Record> records;
+  ImageComparer comparer;
 };

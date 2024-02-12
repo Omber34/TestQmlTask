@@ -9,7 +9,6 @@
 
 struct Record
 {
-  QPixmap image;
   float similarToPrev{};
   QString hash;
 };

@@ -6,21 +6,23 @@ import models 1.0
 Item
 {
 	height: startButton.height
+  property ScreenSaver screenSaver
+
 	RowLayout	{
     Button {
       id: startButton
       text: "Start"
-      onClicked: ScreenSaver.start()
+      onClicked: screenSaver.start()
     }
 
     Button {
       text: "Stop"
-      onClicked: ScreenSaver.stop()
+      onClicked: screenSaver.stop()
     }
 
     Button {
       text: "Take shot"
-      onClicked: ScreenSaver.takeNewRecord()
+      onClicked: screenSaver.takeNewRecord()
     }
   }
 }

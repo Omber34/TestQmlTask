@@ -7,6 +7,6 @@ QtObject {
     readonly property int previewImageHeight: 180
     readonly property int previewImageWidth: 320
 
-    readonly property int gridCellHeight: previewImageHeight + (12 * 2)
+    readonly property int gridCellHeight: previewImageHeight + (20 * 2)
 
 }

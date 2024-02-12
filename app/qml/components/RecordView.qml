@@ -7,7 +7,6 @@ GridView
   cellWidth: Constants.previewImageWidth
   cellHeight: Constants.gridCellHeight
 
-  model: RecordModel
   delegate: RecordDelegate
   {
     width: grid.cellWidth; height: grid.cellHeight

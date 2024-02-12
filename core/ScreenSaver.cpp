@@ -5,63 +5,33 @@
 #include <QGuiApplication>
 #include <QBuffer>
 #include <QScreen>
-#include <QCryptographicHash>
-#include <stdexcept>
 #include "ScreenSaver.h"
+#include "ImageStorage.h"
 
 namespace
 {
-  QByteArray pixmapToByteArray(const QPixmap& pixmap)
-  {
-    QByteArray pixmapToHash;
-    QBuffer buffer(&pixmapToHash);
-
-    buffer.open(QIODevice::WriteOnly);
-    auto grayPixmap = pixmap.toImage().convertToFormat(QImage::Format_Grayscale8);
-    grayPixmap.save(&buffer, "PNG");
-
-    return pixmapToHash;
-  }
-
-  Record createNewRecord()
+  QPixmap takeScreenshot()
   {
     auto* screen = QGuiApplication::primaryScreen();
 
     auto screenshot = screen->grabWindow(0);
 
-    QByteArray pixmapHash = pixmapToByteArray(screenshot);
-
-    QString hash = QString(QCryptographicHash::hash(pixmapHash, QCryptographicHash::Md5).toHex());
-    return Record{screenshot,  0.0f, hash};
+    return screenshot
+//    .scaled(PreviewImageSize)
+    ;
   }
 
-  float compareImages(const QPixmap& left, const QPixmap& right)
-  {return 0;
-//    if (left.isNull() || right.isNull())
-//      return 0.0f;
-//
-//    auto leftHash = pixmapToByteArray(left);
-//    auto rightHash = pixmapToByteArray(right);
-//
-//    QByteArray diff;
-//    diff.reserve(std::min(leftHash.size(), rightHash.size()));
-//
-//    size_t nonZeroCount = 0;
-//    for (int i = 0; i < diff.capacity(); ++i)
-//    {
-//      const auto value = static_cast<char>(std::abs(static_cast<int>(leftHash[i] - rightHash[i])));
-//      diff.push_back(value);
-//      if (value != 0) ++nonZeroCount;
-//    }
-//
-//    return static_cast<float>(nonZeroCount) / static_cast<float>(diff.size()) * 100.0f;
+  Record createNewRecord(const QPixmap& pixmap)
+  {
+    QString hash = QString::number(pixmap.cacheKey());
+
+    return Record{0.0, hash};
   }
 }
 
-ScreenSaver::ScreenSaver(const RecordModel &model)
+ScreenSaver::ScreenSaver(QObject *parent)
+: QObject(parent)
 {
-  connect(&timer, &QTimer::timeout, this, &ScreenSaver::takeNewRecord);
-  connect(this, &ScreenSaver::onNewRecord, &model, &RecordModel::addNewRecord, Qt::QueuedConnection);
 }
 
 void ScreenSaver::start()
@@ -77,9 +47,20 @@ void ScreenSaver::stop()
 
 void ScreenSaver::takeNewRecord()
 {
-  auto newRecord = createNewRecord();
-  newRecord.similarToPrev = compareImages(newRecord.image, previousShot);
-  previousShot = newRecord.image;
+  const auto newShot = takeScreenshot();
+  auto newRecord = createNewRecord(newShot);
+  ImageStorage::getInstance().putImage(newRecord.hash, newShot);
   emit onNewRecord(newRecord);
 }
+
+void ScreenSaver::setModel(RecordModel* newModel)
+{
+  if (!newModel)
+    return;
+
+  model = newModel;
+  connect(&timer, &QTimer::timeout, this, &ScreenSaver::takeNewRecord);
+  connect(this, &ScreenSaver::onNewRecord, model, &RecordModel::addNewRecord);
+}
+
 

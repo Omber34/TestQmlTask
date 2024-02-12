@@ -12,19 +12,21 @@
 class ScreenSaver : public QObject
 {
   Q_OBJECT
+  Q_PROPERTY(RecordModel* model MEMBER model WRITE setModel)
+
 public:
-  explicit ScreenSaver(const RecordModel& model);
+  explicit ScreenSaver(QObject *parent = nullptr);
 
 public slots:
   void start();
   void stop();
   void takeNewRecord();
+  void setModel(RecordModel* newModel);
 
 signals:
   void onNewRecord(const Record& record);
 
 private:
   QTimer timer;
-  QPixmap previousShot;
-
+  RecordModel* model;
 };
