@@ -37,7 +37,7 @@ ScreenSaver::ScreenSaver(QObject *parent)
 void ScreenSaver::start()
 {
   takeNewRecord();
-  timer.start(1000);
+  timer.start(1000 * 60);
 }
 
 void ScreenSaver::stop()

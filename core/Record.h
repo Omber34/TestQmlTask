@@ -14,3 +14,4 @@ struct Record
 };
 
 Q_DECLARE_METATYPE(Record)
+Q_DECLARE_METATYPE(QList<Record>)

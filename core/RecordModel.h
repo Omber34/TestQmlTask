@@ -34,6 +34,7 @@ public slots:
 
   void addNewRecord(const Record& record);
   void processCompareResult(const QString& id, float similarity);
+  void onRecordLoaded(const Record &newRecord);
 
 private:
   QList<Record> records;

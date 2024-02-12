@@ -50,14 +50,19 @@ RecordModel::RecordModel(QObject *parent)
   , databaseManager(this)
 {
   connect(&comparer, &ImageComparer::resultReady, this, &RecordModel::processCompareResult, Qt::QueuedConnection);
-  records = databaseManager.loadHistory();
+  connect(&databaseManager, &DatabaseManager::recordLoaded, this , &RecordModel::onRecordLoaded);
+  databaseManager.startLoadRecords();
 }
 
 void RecordModel::addNewRecord(const Record& record)
 {
   if (!records.empty())
   {
-    emit comparer.operate(records.back().hash, record.hash);
+    emit comparer.startImageComprasion(records.back().hash, record.hash);
+  }
+  else
+  {
+    emit databaseManager.storeRecord(record);
   }
 
   beginInsertRows(QModelIndex(), 0, 0);
@@ -74,10 +79,17 @@ void RecordModel::processCompareResult(const QString& id, float similarity)
   (*iter).similarity = similarity;
 
   emit dataChanged(createIndex(0, 0), createIndex(records.size() - 1, 0), {SimilarToPrevRole} );
+  emit databaseManager.storeRecord(*iter);
 }
 
 RecordModel::~RecordModel()
 {
-  databaseManager.storeHistory(records);
+}
+
+void RecordModel::onRecordLoaded(const Record &newRecord)
+{
+  beginInsertRows(QModelIndex(), records.size(), records.size());
+  records.push_front(newRecord);
+  endInsertRows();
 }
 

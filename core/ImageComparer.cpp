@@ -27,22 +27,21 @@ namespace
   }
 }
 
-
-void Worker::doWork(const QString &prev, const QString &curr)
+void ComparerWorker::compareImages(const QString &prev, const QString &curr)
 {
   auto& storage = ImageStorage::getInstance();
-  float result = compareImages(storage.getImage(prev), storage.getImage(curr));
+  float result = ::compareImages(storage.getImage(prev), storage.getImage(curr));
 
   emit resultReady(curr, result);
 }
 
 ImageComparer::ImageComparer()
 {
-  auto *worker = new Worker;
+  auto *worker = new ComparerWorker;
   worker->moveToThread(&workerThread);
   connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
-  connect(this, &ImageComparer::operate, worker, &Worker::doWork, Qt::QueuedConnection);
-  connect(worker, &Worker::resultReady, this, &ImageComparer::resultReady, Qt::QueuedConnection);
+  connect(this, &ImageComparer::startImageComprasion, worker, &ComparerWorker::compareImages);
+  connect(worker, &ComparerWorker::resultReady, this, &ImageComparer::resultReady);
   workerThread.start();
 }
 
